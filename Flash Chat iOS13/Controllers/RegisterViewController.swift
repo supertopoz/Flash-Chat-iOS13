@@ -11,21 +11,23 @@ import Firebase
 
 class RegisterViewController: UIViewController {
 
+    
+
     @IBOutlet weak var emailTextfield: UITextField!
     @IBOutlet weak var passwordTextfield: UITextField!
     
-    override func viewDidLoad() {
-        super.viewDidLoad()
-     //   passwordTextfield.autocorrectionType = .no
-    }
-    
+    var errorAlert = ErrorAlert()
+        
     @IBAction func registerPressed(_ sender: UIButton) {
         if let email = emailTextfield.text, let password = passwordTextfield.text {
             Auth.auth().createUser(withEmail: email, password: password) { authResult, error in
-                guard error != nil else {
-                    print(error?.localizedDescription)
+                guard error == nil else {
+                    self.errorAlert.showAlert(view: self, title: "Auth Error", message: error?.localizedDescription ?? "Something went wrong")
                     return
                 }
+                self.passwordTextfield.text = ""
+                self.emailTextfield.text = ""
+                print(authResult)
                 self.performSegue(withIdentifier: "RegisterToChat", sender: nil)
                 
             }
