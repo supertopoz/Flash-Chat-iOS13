@@ -21,10 +21,10 @@ class LoginViewController: UIViewController {
         if let email = emailTextfield.text, let password = passwordTextfield.text {
             Auth.auth().signIn(withEmail: email, password: password) { (result, error) in
                 guard error == nil else {
-                    self.alertError.showAlert(view: self, title: "Log in Error", message: error?.localizedDescription ?? "Some login error")
+                    self.alertError.showAlert(view: self, title: K.Errors.authErrorTitle, message: error?.localizedDescription ?? K.Errors.errorAlternative)
                     return
                 }
-                self.performSegue(withIdentifier: "LoginToChat", sender: self)
+                self.performSegue(withIdentifier: K.loginSegue, sender: self)
             }
         }
         
