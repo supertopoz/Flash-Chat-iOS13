@@ -14,6 +14,8 @@ class ChatViewController: UIViewController {
     @IBOutlet weak var tableView: UITableView!
     @IBOutlet weak var messageTextfield: UITextField!
     
+    let db = Firestore.firestore()
+    
     var errorAlert = ErrorAlert()
     var messages: [Message] = [
     
@@ -32,6 +34,22 @@ class ChatViewController: UIViewController {
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
+         print("Send...")
+        print(Auth.auth().currentUser?.email)
+   
+        if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
+            db.collection(K.FStore.collectionName).addDocument(data:
+               [K.FStore.senderField: messageSender,
+                K.FStore.bodyField : messageBody
+               ]) { (error) in
+                if let e = error {
+                    print("Error in saving \(e.localizedDescription)")
+                } else {
+                    print("Saved data")
+                }
+            }
+        }
+       
     }
     
     @IBAction func logoutPressed(_ sender: UIBarButtonItem) {
@@ -51,6 +69,7 @@ extension ChatViewController: UITableViewDataSource {
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
         return messages.count
+        // Example
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
