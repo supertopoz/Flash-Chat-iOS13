@@ -31,6 +31,39 @@ class ChatViewController: UIViewController {
         tableView.dataSource = self
         navigationItem.hidesBackButton = true
         tableView.register(UINib(nibName: K.cellNibName, bundle: nil), forCellReuseIdentifier: K.cellIdentifier)
+        loadMessages()
+    }
+        
+    func loadMessages(){
+        messages = []
+        db.collection(K.FStore.collectionName)
+            .order(by: K.FStore.dateField)
+            .addSnapshotListener { (querrySnapshot, error) in
+            if let e = error {
+                print("fetch Error \(e.localizedDescription)")
+                return
+            } else {
+                self.messages = []
+                
+                if let snapshotDocuments = querrySnapshot?.documents {
+                    
+                    for message in snapshotDocuments {
+                        let data = message.data()
+                        if let sender = data[K.FStore.senderField] as? String, let body = data[K.FStore.bodyField] as? String {
+                            self.messages.append(Message(sender: sender , body: body ))
+                            DispatchQueue.main.async {
+                                
+                                self.tableView.reloadData()
+                            }
+                        }
+
+                    }
+                }
+
+
+            }
+        }
+
     }
     
     @IBAction func sendPressed(_ sender: UIButton) {
@@ -40,7 +73,8 @@ class ChatViewController: UIViewController {
         if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
             db.collection(K.FStore.collectionName).addDocument(data:
                [K.FStore.senderField: messageSender,
-                K.FStore.bodyField : messageBody
+                K.FStore.bodyField : messageBody,
+                K.FStore.dateField : Date().timeIntervalSince1970
                ]) { (error) in
                 if let e = error {
                     print("Error in saving \(e.localizedDescription)")
