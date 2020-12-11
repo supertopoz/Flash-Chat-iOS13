@@ -54,13 +54,13 @@ class ChatViewController: UIViewController {
                             DispatchQueue.main.async {
                                 
                                 self.tableView.reloadData()
+                                let indexPath = IndexPath(row: self.messages.count - 1, section: 0)
+                                self.tableView.scrollToRow(at: indexPath, at: .top, animated: false)
                             }
                         }
 
                     }
                 }
-
-
             }
         }
 
@@ -69,7 +69,7 @@ class ChatViewController: UIViewController {
     @IBAction func sendPressed(_ sender: UIButton) {
          print("Send...")
         print(Auth.auth().currentUser?.email)
-   
+        
         if let messageBody = messageTextfield.text, let messageSender = Auth.auth().currentUser?.email {
             db.collection(K.FStore.collectionName).addDocument(data:
                [K.FStore.senderField: messageSender,
@@ -80,6 +80,7 @@ class ChatViewController: UIViewController {
                     print("Error in saving \(e.localizedDescription)")
                 } else {
                     print("Saved data")
+                    self.messageTextfield.text = ""
                 }
             }
         }
@@ -113,6 +114,7 @@ extension ChatViewController: UITableViewDataSource {
            let sender = messages[indexPath.row].sender
             if currentUser == sender {
                 cell.leftImageView.isHidden = true
+                cell.rightImageView.isHidden = false
                 cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.lighBlue)
                 cell.label.textColor = UIColor(named: K.BrandColors.purple)
             } else {
@@ -120,6 +122,8 @@ extension ChatViewController: UITableViewDataSource {
 //                cell.leftImageView.isHidden = true
                 cell.leftImageView.isHidden = false
                 cell.rightImageView.isHidden = true
+                cell.messageBubble.backgroundColor = UIColor(named: K.BrandColors.purple)
+                cell.label.textColor = .white
             }
         }
         
